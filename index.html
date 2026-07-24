@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flower Bouquet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{
+    width:100%; height:100%;
+    overflow:hidden;
+    background:#05050a;
+  }
+  .stage{
+    position:relative;
+    width:100vw; height:100vh;
+  }
+
+  /* stars */
+  .star{
+    position:absolute;
+    width:2px; height:2px;
+    background:#ffffff;
+    border-radius:50%;
+    opacity:0.4;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:0.15; }
+    50%{ opacity:0.9; }
+  }
+
+  /* bouquet container anchored bottom center */
+  .bouquet{
+    position:absolute;
+    bottom:0;
+    left:50%;
+    transform: translateX(-50%);
+    width:520px;
+    height:70vh;
+  }
+
+  .stem-group{
+    position:absolute;
+    bottom:0;
+    left:50%;
+    transform: translateX(-50%) scale(0);
+    transform-origin: bottom center;
+    animation: grow 2.6s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  @keyframes grow{
+    0%{ transform: translateX(-50%) scale(0) rotate(var(--tilt,0deg)); opacity:0; }
+    60%{ transform: translateX(-50%) scale(1.1) rotate(var(--tilt,0deg)); opacity:1; }
+    100%{ transform: translateX(-50%) scale(1) rotate(var(--tilt,0deg)); opacity:1; }
+  }
+
+  .stem{
+    width:5px;
+    background: linear-gradient(#5a8a4a, #3f6b34);
+    margin:0 auto;
+    border-radius:3px;
+  }
+  .leaf{
+    position:absolute;
+    width:20px; height:12px;
+    background:#4f7d40;
+    border-radius:0 100% 0 100%;
+  }
+
+  .flowerhead{
+    position:absolute;
+    left:50%;
+    transform: translateX(-50%);
+  }
+
+  /* lily - star shaped petals */
+  .lily .petal{
+    position:absolute;
+    width:12px; height:36px;
+    background: linear-gradient(#fdfdfb, #f1eee6);
+    border-radius: 50% 50% 0 0;
+    top:50%; left:50%;
+    transform-origin:50% 100%;
+  }
+
+  /* tulip - cupped petals */
+  .tulip .petal{
+    position:absolute;
+    width:16px; height:26px;
+    background: linear-gradient(#caa0d6, #8f5aa8);
+    border-radius: 50% 50% 40% 40%;
+    top:50%; left:50%;
+    transform-origin:50% 100%;
+  }
+
+  /* gerbera - thin pointed petals, orange/red */
+  .gerbera .petal{
+    position:absolute;
+    width:8px; height:22px;
+    background: linear-gradient(#ffb26b, #e8622c);
+    border-radius: 50%;
+    top:50%; left:50%;
+    transform-origin:50% 100%;
+  }
+  .gerbera .center, .sunflower .center{
+    position:absolute;
+    width:16px; height:16px;
+    border-radius:50%;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background: radial-gradient(circle, #6b3a12, #3a1f08);
+    z-index:5;
+  }
+
+  /* sunflower */
+  .sunflower .petal{
+    position:absolute;
+    width:9px; height:24px;
+    background: linear-gradient(#ffd85e, #f2a71b);
+    border-radius: 50%;
+    top:50%; left:50%;
+    transform-origin:50% 100%;
+  }
+
+  .glow{
+    position:absolute;
+    bottom:5%;
+    left:50%;
+    transform: translateX(-50%);
+    width:600px; height:600px;
+    background: radial-gradient(circle, rgba(255,215,140,0.10), rgba(255,215,140,0) 65%);
+    pointer-events:none;
+  }
+
+  .sparkle{
+    position:absolute;
+    width:5px; height:5px;
+    background:#ffe9b8;
+    border-radius:50%;
+    opacity:0;
+    animation: sparkle 2.4s ease-in-out infinite;
+    box-shadow:0 0 6px 2px rgba(255,230,180,0.7);
+  }
+  @keyframes sparkle{
+    0%,100%{ opacity:0; transform: scale(0.4); }
+    50%{ opacity:1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="glow"></div>
+  <div class="bouquet" id="bouquet"></div>
+</div>
+
+<script>
+const stage = document.getElementById('stage');
+const bouquet = document.getElementById('bouquet');
+
+/* stars scattered across whole background */
+for(let i=0;i<90;i++){
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.left = Math.random()*100+'vw';
+  s.style.top = Math.random()*70+'vh';
+  s.style.animationDelay = (Math.random()*3)+'s';
+  const size = 1 + Math.random()*1.5;
+  s.style.width = size+'px'; s.style.height = size+'px';
+  stage.appendChild(s);
+}
+
+/* build a flower head with n petals of given type */
+function buildHead(type, petalCount){
+  const head = document.createElement('div');
+  head.className = 'flowerhead ' + type;
+  for(let i=0;i<petalCount;i++){
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    const angle = (360/petalCount)*i;
+    petal.style.transform = `translate(-50%,-100%) rotate(${angle}deg)`;
+    head.appendChild(petal);
+  }
+  if(type==='gerbera' || type==='sunflower'){
+    const c = document.createElement('div');
+    c.className = 'center';
+    head.appendChild(c);
+  }
+  return head;
+}
+
+/* bouquet layout: [type, petals, stemHeight, xOffset, tilt, delay] */
+const layout = [
+  ['lily', 6, 260, -110, -12, 0.2],
+  ['tulip', 6, 220, -55, -6, 0.8],
+  ['sunflower', 14, 300, 0, 0, 1.4],
+  ['lily', 6, 250, 55, 6, 2.0],
+  ['gerbera', 12, 210, 115, 12, 1.1],
+  ['tulip', 6, 235, -170, -18, 2.6],
+  ['gerbera', 12, 225, 170, 18, 3.1],
+];
+
+layout.forEach(([type, petals, stemH, xOff, tilt, delay])=>{
+  const group = document.createElement('div');
+  group.className = 'stem-group';
+  group.style.setProperty('--tilt', tilt+'deg');
+  group.style.left = `calc(50% + ${xOff}px)`;
+  group.style.animationDelay = delay+'s';
+
+  const stem = document.createElement('div');
+  stem.className = 'stem';
+  stem.style.height = stemH+'px';
+  group.appendChild(stem);
+
+  const leaf1 = document.createElement('div');
+  leaf1.className = 'leaf';
+  leaf1.style.top = (stemH*0.45)+'px';
+  leaf1.style.left = '-16px';
+  leaf1.style.transform = 'rotate(25deg)';
+  group.appendChild(leaf1);
+
+  const leaf2 = document.createElement('div');
+  leaf2.className = 'leaf';
+  leaf2.style.top = (stemH*0.6)+'px';
+  leaf2.style.left = '10px';
+  leaf2.style.transform = 'rotate(-25deg) scaleX(-1)';
+  group.appendChild(leaf2);
+
+  const head = buildHead(type, petals);
+  head.style.top = '-6px';
+  head.style.bottom = 'auto';
+  head.style.position = 'absolute';
+  head.style.top = 'auto';
+  head.style.marginTop = '0px';
+  head.style.transform = 'translate(-50%, -100%)';
+  head.style.top = '0px';
+  stem.style.position = 'relative';
+  head.style.bottom = stemH+'px';
+  head.style.position = 'absolute';
+  head.style.left = '50%';
+  stem.appendChild(head);
+
+  bouquet.appendChild(group);
+});
+
+/* ambient sparkles around the bouquet */
+setTimeout(()=>{
+  for(let i=0;i<26;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.style.left = (25+Math.random()*50)+'vw';
+    s.style.top = (25+Math.random()*45)+'vh';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    stage.appendChild(s);
+  }
+}, 4200);
+
+/* message text fades in after the bouquet finishes blooming */
+setTimeout(()=>{
+  const msg = document.createElement('div');
+  msg.textContent = 'love you bbg';
+  msg.style.cssText = `
+    position:absolute;
+    top:14%;
+    left:50%;
+    transform:translate(-50%,-10px);
+    opacity:0;
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(40px, 10vw, 68px);
+    color:#ffe3ec;
+    text-shadow: 0 0 18px rgba(255,210,225,0.6), 0 2px 6px rgba(0,0,0,0.5);
+    letter-spacing:1px;
+    transition: opacity 2s ease, transform 2s ease;
+    text-align:center;
+    width:90%;
+  `;
+  stage.appendChild(msg);
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      msg.style.opacity = '1';
+      msg.style.transform = 'translate(-50%,0)';
+    }, 50);
+  });
+}, 4400);
+</script>
+</body>
+</html>
